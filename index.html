@@ -5,261 +5,559 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Watchmode</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: #0a0a0a; color: #f0f0f0; min-height: 100vh; }
-  #hero { padding: 2.5rem 1rem 1.2rem; text-align: center; }
-  #hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 60px; letter-spacing: 4px; line-height: 1; color: #f0f0f0; }
-  #hero h1 span { color: #E24B4A; }
-  #hero p { font-size: 11px; color: #666; margin-top: 6px; letter-spacing: 2px; text-transform: uppercase; }
-  #tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 1.2rem; }
-  .tab { padding: 7px 22px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #999; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all .15s; }
-  .tab.active, .tab:hover { background: #E24B4A; color: #fff; border-color: #E24B4A; }
-  #searchbar { display: flex; gap: 8px; padding: 0 1rem; max-width: 560px; margin: 0 auto 1.2rem; }
-  #search-input { flex: 1; font-size: 15px; font-family: 'DM Sans', sans-serif; border-radius: 8px; border: 1px solid #2a2a2a; background: #161616; color: #f0f0f0; padding: 10px 16px; outline: none; transition: border-color .15s; }
-  #search-input:focus { border-color: #E24B4A; }
-  #search-input::placeholder { color: #444; }
-  #search-btn { padding: 10px 22px; background: #E24B4A; color: #fff; border: none; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; cursor: pointer; transition: opacity .15s, transform .1s; }
-  #search-btn:hover { opacity: .85; }
-  #search-btn:active { transform: scale(.97); }
-  #status { font-size: 13px; color: #666; text-align: center; min-height: 18px; margin-bottom: .8rem; }
-  #section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #555; padding: 0 1.2rem; margin-bottom: 12px; display: none; }
-  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; padding: 0 1rem 3rem; }
-  .card { background: #161616; border-radius: 10px; overflow: hidden; border: 1px solid #1e1e1e; cursor: pointer; transition: transform .2s, border-color .2s; animation: fadeUp .3s ease both; }
-  .card:hover { transform: translateY(-4px); border-color: #E24B4A; }
-  .poster { position: relative; }
-  .poster img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #111; }
-  .overlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; opacity: 0; transition: opacity .2s; }
-  .card:hover .overlay { opacity: 1; }
-  .play-circle { width: 46px; height: 46px; border-radius: 50%; background: #E24B4A; display: flex; align-items: center; justify-content: center; }
-  .play-circle svg { width: 18px; height: 18px; fill: #fff; margin-left: 2px; }
-  .watch-lbl { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1px; color: #fff; }
-  .info { padding: 9px 10px 12px; }
-  .title { font-size: 12px; font-weight: 500; line-height: 1.35; color: #f0f0f0; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .meta { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; }
-  .year { font-size: 11px; color: #555; }
-  .rating { font-size: 11px; font-weight: 500; color: #E24B4A; display: flex; align-items: center; gap: 2px; }
-  .star { width: 9px; height: 9px; fill: #E24B4A; }
-  #player-view { display: none; padding: 0 1rem 2rem; }
-  #player-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  #back-btn { padding: 7px 14px; background: transparent; border: 1px solid #2a2a2a; color: #999; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: border-color .15s, color .15s; }
-  #back-btn:hover { border-color: #E24B4A; color: #E24B4A; }
-  #now-playing { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; flex: 1; color: #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #iframe-wrap { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; border: 1px solid #1e1e1e; background: #000; }
-  #iframe-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
-  #ep-controls { display: none; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-  #ep-controls label { font-size: 12px; color: #666; }
-  #ep-controls input { width: 64px; padding: 6px 10px; font-size: 13px; border-radius: 8px; border: 1px solid #2a2a2a; background: #161616; color: #f0f0f0; font-family: 'DM Sans', sans-serif; outline: none; }
-  #ep-controls input:focus { border-color: #E24B4A; }
-  #load-ep-btn { padding: 7px 16px; background: #E24B4A; color: #fff; border: none; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; cursor: pointer; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
-  .badge-anime { background: #6c3fc5; color: #fff; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;overflow-x:hidden}
+
+/* ── NAVBAR ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;padding:0 40px;height:68px;background:linear-gradient(to bottom,rgba(0,0,0,.85) 0%,transparent 100%);transition:background .3s}
+#nav.solid{background:rgba(10,10,10,.97);border-bottom:1px solid #1a1a1a}
+.n-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.n-logo-icon{width:34px;height:34px;background:#E24B4A;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.n-logo-icon svg{width:14px;height:14px;fill:#fff;margin-left:2px}
+.n-logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#fff}
+.n-logo-text span{color:#E24B4A}
+.n-links{display:flex;gap:28px;margin-left:36px}
+.n-links a{font-size:14px;color:#999;text-decoration:none;cursor:pointer;transition:color .15s;display:flex;align-items:center;gap:5px}
+.n-links a:hover,.n-links a.active{color:#fff}
+.n-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.n-btn{background:none;border:none;color:#ccc;cursor:pointer;padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s}
+.n-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+.n-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.n-mode-pill{padding:5px 14px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#ccc;font-size:12px;font-weight:500;letter-spacing:.5px;cursor:default}
+
+/* ── SIDEBAR ── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;backdrop-filter:blur(4px)}
+#overlay.open{display:block}
+#sidebar{position:fixed;top:0;right:-320px;width:300px;height:100%;background:#111;z-index:400;transition:right .28s cubic-bezier(.4,0,.2,1);border-left:1px solid #1e1e1e;display:flex;flex-direction:column}
+#sidebar.open{right:0}
+.sb-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid #1e1e1e}
+.sb-logo{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#666}
+.sb-close{background:none;border:none;color:#666;cursor:pointer;font-size:20px;line-height:1;padding:2px;transition:color .15s}
+.sb-close:hover{color:#fff}
+.sb-section{padding:20px 20px 8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#444}
+.sb-item{display:flex;align-items:center;gap:14px;padding:13px 20px;cursor:pointer;font-size:14px;font-weight:500;color:#888;transition:all .15s;border-left:3px solid transparent;margin:2px 0}
+.sb-item:hover{background:rgba(255,255,255,.04);color:#fff;border-left-color:#333}
+.sb-item.active{background:rgba(255,255,255,.06);color:#fff;border-left-color:#E24B4A}
+.sb-item .si{font-size:18px}
+.sb-item.sb-games{color:#2f80ff;border-left-color:#2f80ff;background:rgba(47,128,255,.07)}
+.sb-item.sb-games:hover{background:rgba(47,128,255,.15);color:#6aa8ff}
+.sb-item.sb-games.active{background:#2f80ff;color:#fff;border-left-color:#2f80ff}
+.sb-divider{height:1px;background:#1a1a1a;margin:12px 20px}
+
+/* ── SEARCH OVERLAY ── */
+#search-panel{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;padding:80px 60px 40px}
+#search-panel.open{display:flex}
+.sp-close{position:absolute;top:20px;right:28px;background:none;border:none;color:#666;font-size:22px;cursor:pointer;transition:color .15s}
+.sp-close:hover{color:#fff}
+.sp-input-wrap{display:flex;align-items:center;gap:16px;border-bottom:1px solid #2a2a2a;padding-bottom:16px;margin-bottom:32px}
+.sp-input-wrap svg{width:22px;height:22px;fill:none;stroke:#666;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+#sp-input{flex:1;font-size:28px;background:none;border:none;color:#fff;font-family:'DM Sans',sans-serif;outline:none}
+#sp-input::placeholder{color:#333}
+#sp-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;overflow-y:auto}
+
+/* ── HERO ── */
+#hero{position:relative;height:88vh;min-height:520px;overflow:hidden}
+#hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 15%;transition:opacity .6s}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.92) 30%,rgba(0,0,0,.4) 65%,rgba(0,0,0,.1) 100%),linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,.5) 25%,transparent 55%)}
+#hero-content{position:absolute;bottom:110px;left:60px;max-width:560px}
+.hero-type{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#E24B4A;margin-bottom:12px;font-weight:600}
+#hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,58px);letter-spacing:2px;line-height:1.05;margin-bottom:14px;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+#hero-meta{display:flex;align-items:center;gap:8px;font-size:13px;color:#bbb;margin-bottom:14px;flex-wrap:wrap}
+.h-rating{color:#E24B4A;font-weight:700;display:flex;align-items:center;gap:4px}
+.h-rating svg{width:12px;height:12px;fill:#E24B4A}
+.h-dot{color:#444}
+.h-genre{padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.08);font-size:11px;border:1px solid rgba(255,255,255,.1)}
+#hero-desc{font-size:14px;line-height:1.65;color:#999;margin-bottom:26px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero-btns{display:flex;gap:12px}
+.h-btn-play{display:flex;align-items:center;gap:8px;padding:13px 30px;background:#fff;color:#000;border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s}
+.h-btn-play:hover{opacity:.9;transform:scale(1.02)}
+.h-btn-play svg{width:15px;height:15px;fill:#000}
+.h-btn-more{display:flex;align-items:center;gap:8px;padding:13px 30px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:50px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;backdrop-filter:blur(8px);transition:background .15s}
+.h-btn-more:hover{background:rgba(255,255,255,.22)}
+.h-btn-more svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2}
+
+/* ── ROWS ── */
+#rows{position:relative;z-index:10;padding:0 40px 80px;margin-top:-90px}
+.row-sec{margin-bottom:40px}
+.row-title{font-size:16px;font-weight:600;color:#eee;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.rbar{width:4px;height:18px;background:#E24B4A;border-radius:2px;display:inline-block;flex-shrink:0}
+.scroll-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.scroll-row::-webkit-scrollbar{display:none}
+
+/* ── MOVIE CARDS ── */
+.mcard{flex:0 0 130px;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;background:#161616;position:relative}
+.mcard:hover{transform:scale(1.06);box-shadow:0 10px 40px rgba(0,0,0,.7)}
+.mcard img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+.mc-info{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.95) 0%,transparent 55%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px}
+.mcard:hover .mc-info{opacity:1}
+.mc-title{font-size:11px;font-weight:500;color:#fff;line-height:1.3}
+.mc-year{font-size:10px;color:#aaa;margin-top:2px}
+
+/* ── TOP 10 CARDS ── */
+.t10-wrap{flex:0 0 116px;position:relative;cursor:pointer}
+.t10-num{position:absolute;left:-18px;bottom:-10px;font-family:'Bebas Neue',sans-serif;font-size:80px;line-height:1;color:transparent;-webkit-text-stroke:2px #2a2a2a;z-index:1;pointer-events:none;user-select:none}
+.t10-img{position:relative;z-index:2;border-radius:8px;overflow:hidden;transition:transform .2s}
+.t10-wrap:hover .t10-img{transform:scale(1.06)}
+.t10-img img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+
+/* ── GAMES ── */
+#games-view{display:none;padding:100px 40px 60px;max-width:1300px;margin:0 auto}
+.gv-head{margin-bottom:24px}
+.gv-head h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#2f80ff}
+.gv-head p{font-size:11px;color:#3a5a8a;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+#game-search-wrap{max-width:400px;margin-bottom:24px}
+#game-search{width:100%;padding:11px 16px;border-radius:10px;background:#0d1929;border:1px solid #1a3a6b;color:#fff;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .15s}
+#game-search:focus{border-color:#2f80ff}
+#game-search::placeholder{color:#3a5a8a}
+#game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.gcard{background:#0d1929;border:1px solid #172f56;border-radius:14px;padding:22px 18px;cursor:pointer;transition:.2s;text-align:center}
+.gcard:hover{transform:translateY(-5px);border-color:#2f80ff;box-shadow:0 8px 32px rgba(47,128,255,.2)}
+.gcard.featured{background:linear-gradient(135deg,#0d1929 0%,#071a10 100%);border-color:#1e6b3a}
+.gcard.featured:hover{border-color:#22c55e;box-shadow:0 8px 32px rgba(34,197,94,.18)}
+.gemoji{font-size:36px;margin-bottom:10px}
+.gcard h3{font-size:13px;font-weight:500;color:#c8d8f0}
+.gcard .gtag{display:inline-block;margin-top:6px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#2f80ff;opacity:.7}
+.gcard.featured .gtag{color:#22c55e;opacity:.9}
+
+/* ── PLAYER (fullscreen) ── */
+#player-view,#game-player-view{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
+#player-view.open,#game-player-view.open{display:flex}
+.pv-top{display:flex;align-items:center;gap:14px;padding:14px 24px;background:rgba(0,0,0,.85);flex-shrink:0;border-bottom:1px solid #1a1a1a}
+.pv-back{display:flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#ccc;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s}
+.pv-back:hover{background:rgba(255,255,255,.15);color:#fff}
+.pv-back svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+#pv-title,#gpv-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pv-frame,#gframe{flex:1;border:none;display:block;width:100%}
+#ep-bar{display:none;align-items:center;gap:10px;padding:11px 24px;background:rgba(0,0,0,.85);border-top:1px solid #1a1a1a;flex-shrink:0;flex-wrap:wrap}
+#ep-bar label{font-size:12px;color:#666}
+#ep-bar input{width:62px;padding:6px 10px;font-size:13px;border-radius:8px;border:1px solid #2a2a2a;background:#161616;color:#fff;font-family:'DM Sans',sans-serif;outline:none}
+#ep-bar input:focus{border-color:#E24B4A}
+#load-ep{padding:7px 16px;background:#E24B4A;color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer}
+.gpv-fs{padding:8px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#ccc;border-radius:8px;font-size:16px;cursor:pointer;transition:all .15s}
+.gpv-fs:hover{background:rgba(255,255,255,.15);color:#fff}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<div id="hero">
-  <h1>WATCH<span>.</span>MODE</h1>
-  <p>Powered by 2Embed &amp; TMDB</p>
+<!-- ══ NAVBAR ══ -->
+<nav id="nav">
+  <div class="n-logo">
+    <div class="n-logo-icon"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+    <span class="n-logo-text">WATCH<span>.</span>MODE</span>
+  </div>
+  <div class="n-links">
+    <a class="active" id="n-home" onclick="goHome()">Home</a>
+    <a id="n-browse" onclick="toggleSearch()">Zoeken</a>
+  </div>
+  <div class="n-right">
+    <span class="n-mode-pill" id="mode-pill">Films</span>
+    <button class="n-btn" onclick="toggleSearch()" title="Zoeken">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+    <button class="n-btn" onclick="toggleMenu()" title="Menu">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ SIDEBAR ══ -->
+<div id="overlay" onclick="closeMenu()"></div>
+<div id="sidebar">
+  <div class="sb-head">
+    <span class="sb-logo">WATCHMODE</span>
+    <button class="sb-close" onclick="closeMenu()">✕</button>
+  </div>
+  <div class="sb-section">Bekijk modus</div>
+  <div class="sb-item active" id="sb-movie" onclick="setMode('movie',this)">
+    <span class="si">🎬</span> Films
+  </div>
+  <div class="sb-item" id="sb-tv" onclick="setMode('tv',this)">
+    <span class="si">📺</span> Series
+  </div>
+  <div class="sb-item" id="sb-anime" onclick="setMode('anime',this)">
+    <span class="si">⛩️</span> Anime
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-item sb-games" id="sb-games" onclick="setMode('games',this)">
+    <span class="si">🎮</span> Games
+  </div>
 </div>
 
-<div id="tabs">
-  <button class="tab active" onclick="setType('movie', this)">Films</button>
-  <button class="tab" onclick="setType('tv', this)">Series</button>
-  <button class="tab" onclick="setType('anime', this)">Anime</button>
+<!-- ══ SEARCH PANEL ══ -->
+<div id="search-panel">
+  <button class="sp-close" onclick="closeSearch()">✕</button>
+  <div class="sp-input-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="sp-input" placeholder="Zoek een film, serie of anime…" oninput="doSearch(this.value)" autofocus>
+  </div>
+  <div id="sp-results"></div>
 </div>
 
-<div id="searchbar">
-  <input id="search-input" type="text" placeholder="Zoek een film of serie…" onkeydown="if(event.key==='Enter') doSearch()">
-  <button id="search-btn" onclick="doSearch()">Zoeken</button>
+<!-- ══ WATCH VIEW ══ -->
+<div id="watch-view">
+  <!-- HERO -->
+  <div id="hero">
+    <div id="hero-bg"></div>
+    <div class="hero-grad"></div>
+    <div id="hero-content">
+      <div class="hero-type" id="hero-type">Films</div>
+      <h1 id="hero-title">Laden…</h1>
+      <div id="hero-meta"></div>
+      <p id="hero-desc"></p>
+      <div class="hero-btns">
+        <button class="h-btn-play" onclick="playHero()">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Play
+        </button>
+        <button class="h-btn-more" onclick="seeMore()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          See More
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROWS -->
+  <div id="rows">
+    <div class="row-sec">
+      <div class="row-title"><span class="rbar"></span> TOP 10 Today</div>
+      <div class="scroll-row" id="top10-row"></div>
+    </div>
+    <div class="row-sec">
+      <div class="row-title"><span class="rbar"></span> Trending deze week</div>
+      <div class="scroll-row" id="trending-row"></div>
+    </div>
+    <div class="row-sec">
+      <div class="row-title"><span class="rbar"></span> Hoog gewaardeerd</div>
+      <div class="scroll-row" id="rated-row"></div>
+    </div>
+  </div>
 </div>
 
-<div id="status"></div>
-<div id="section-label"></div>
-<div id="grid"></div>
+<!-- ══ GAMES VIEW ══ -->
+<div id="games-view">
+  <div class="gv-head">
+    <h2>🎮 Games</h2>
+    <p>24 games — allemaal gratis &amp; direct speelbaar</p>
+  </div>
+  <div id="game-search-wrap">
+    <input id="game-search" placeholder="Zoek een game…" oninput="filterGames()">
+  </div>
+  <div id="game-grid"></div>
+</div>
 
+<!-- ══ WATCH PLAYER ══ -->
 <div id="player-view">
-  <div id="player-header">
-    <button id="back-btn" onclick="goBack()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  <div class="pv-top">
+    <button class="pv-back" onclick="closePlayer()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       Terug
     </button>
-    <div id="now-playing"></div>
+    <span id="pv-title">—</span>
   </div>
-
-  <div id="iframe-wrap">
-    <iframe id="player-frame" allowfullscreen allow="fullscreen; autoplay; encrypted-media"></iframe>
-  </div>
-
-  <div id="ep-controls">
+  <iframe id="pv-frame" allowfullscreen allow="fullscreen; autoplay; encrypted-media"></iframe>
+  <div id="ep-bar">
     <label>Seizoen</label>
-    <input id="season-input" type="number" value="1" min="1">
+    <input id="ep-s" type="number" value="1" min="1">
     <label>Aflevering</label>
-    <input id="ep-input" type="number" value="1" min="1">
-    <button id="load-ep-btn" onclick="loadPlayer()">Laden</button>
+    <input id="ep-e" type="number" value="1" min="1">
+    <button id="load-ep" onclick="loadEp()">Laden</button>
   </div>
+</div>
+
+<!-- ══ GAME PLAYER ══ -->
+<div id="game-player-view">
+  <div class="pv-top">
+    <button class="pv-back" onclick="closeGamePlayer()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Terug
+    </button>
+    <a id="eagler-btn" href="https://servers.eaglercraft.com/" target="_blank" class="pv-back" style="display:none;color:#2f80ff;border-color:#1a3a6b;background:#0d1929">Server list ↗</a>
+    <span id="gpv-title">—</span>
+    <button class="gpv-fs" onclick="gFullscreen()" title="Volledig scherm">⛶</button>
+    <a id="gpv-ext" href="#" target="_blank" class="pv-back">↗ Nieuw tabblad</a>
+  </div>
+  <iframe id="gframe" allowfullscreen allow="fullscreen; autoplay; pointer-lock"></iframe>
 </div>
 
 <script>
-  const TMDB_KEY = 'e878d2bf930dfd081d43f4a8fe0e1c26';
-  const IMG      = 'https://image.tmdb.org/t/p/w300';
-  const FALLBACK = 'https://via.placeholder.com/300x450/111/333?text=Geen+poster';
+/* ═══════════════════════════════════════
+   CONFIG & STATE
+═══════════════════════════════════════ */
+const KEY  = 'e878d2bf930dfd081d43f4a8fe0e1c26';
+const IMG  = 'https://image.tmdb.org/t/p/w300';
+const BIG  = 'https://image.tmdb.org/t/p/original';
+const FALL = 'https://via.placeholder.com/300x450/111/222?text=?';
 
-  function tmdbUrl(path, params) {
-    const qs = new URLSearchParams({ api_key: TMDB_KEY, ...params }).toString();
-    return `https://api.themoviedb.org/3/${path}?${qs}`;
+let mode      = 'movie';   // movie | tv | anime | games
+let heroItem  = null;
+let heroType  = 'movie';   // for player
+let searchTm  = null;
+
+const GENRES = { 28:'Actie',12:'Avontuur',16:'Animatie',35:'Komedie',80:'Misdaad',99:'Documentaire',18:'Drama',10751:'Familie',14:'Fantasy',36:'Geschiedenis',27:'Horror',10402:'Muziek',9648:'Mysterie',10749:'Romantiek',878:'Sci-Fi',10770:'TV-film',53:'Thriller',10752:'Oorlog',37:'Western',10759:'Actie & Avontuur',10762:'Kids',10763:'Nieuws',10764:'Reality',10765:'Sci-Fi & Fantasy',10766:'Soap',10767:'Talk',10768:'Oorlog & Politiek' };
+
+function api(path, p={}){
+  return fetch(`https://api.themoviedb.org/3/${path}?${new URLSearchParams({api_key:KEY,language:'nl-NL',...p})}`).then(r=>r.json());
+}
+
+/* ═══════════════════════════════════════
+   NAVBAR SCROLL
+═══════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('solid', window.scrollY > 60);
+});
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+function toggleMenu(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); }
+function closeMenu() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+const MODE_LABELS = { movie:'Films', tv:'Series', anime:'Anime', games:'Games' };
+
+function setMode(m, el){
+  closeMenu();
+  mode = m;
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('mode-pill').textContent = MODE_LABELS[m];
+  if(m === 'games'){
+    showGames();
+  } else {
+    showWatch();
+    loadHome();
   }
+}
 
-  let mediaType = 'movie';
-  let currentId = null;
+/* ═══════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════ */
+function toggleSearch(){
+  const p = document.getElementById('search-panel');
+  if(p.classList.contains('open')){ closeSearch(); }
+  else { p.classList.add('open'); setTimeout(()=>document.getElementById('sp-input').focus(),50); }
+}
+function closeSearch(){ document.getElementById('search-panel').classList.remove('open'); document.getElementById('sp-input').value=''; document.getElementById('sp-results').innerHTML=''; }
 
-  function buildUrl(id, type, s, e) {
-    s = parseInt(s) || 1;
-    e = parseInt(e) || 1;
-    if (type === 'tv' || type === 'anime')
-      return `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`;
-    return `https://www.2embed.cc/embed/${id}`;
-  }
+async function doSearch(q){
+  clearTimeout(searchTm);
+  if(!q.trim()){ document.getElementById('sp-results').innerHTML=''; return; }
+  searchTm = setTimeout(async ()=>{
+    const searchMode = (mode==='games') ? 'movie' : mode;
+    const type = (searchMode==='anime'||searchMode==='tv') ? 'tv' : 'movie';
+    const data = await api(`search/${type}`,{query:q,include_adult:'false'});
+    let res = data.results||[];
+    if(mode==='anime') res = res.filter(r=>r.genre_ids?.includes(16));
+    document.getElementById('sp-results').innerHTML = res.slice(0,20).map(item=>{
+      const t = item.title||item.name||'';
+      const poster = item.poster_path ? IMG+item.poster_path : FALL;
+      const mType = (searchMode==='anime'||type==='tv') ? 'tv' : 'movie';
+      return `<div class="mcard" onclick='playItem(${item.id},"${t.replace(/"/g,'&quot;')}","${mType}")' style="flex:unset">
+        <img src="${poster}" loading="lazy" onerror="this.src='${FALL}'" alt="${t}">
+        <div class="mc-info"><div class="mc-title">${t}</div></div>
+      </div>`;
+    }).join('');
+  }, 280);
+}
 
-  function setType(type, el) {
-    mediaType = type;
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    if (type === 'movie')      document.getElementById('search-input').placeholder = 'Zoek een film…';
-    else if (type === 'tv')    document.getElementById('search-input').placeholder = 'Zoek een serie…';
-    else                       document.getElementById('search-input').placeholder = 'Zoek anime…';
-    loadTrending();
-  }
+/* ═══════════════════════════════════════
+   HOME / WATCH VIEW
+═══════════════════════════════════════ */
+function showWatch(){
+  document.getElementById('watch-view').style.display = 'block';
+  document.getElementById('games-view').style.display = 'none';
+  document.getElementById('hero-type').textContent = MODE_LABELS[mode]||'';
+}
 
-  function setStatus(msg) { document.getElementById('status').textContent = msg; }
+function showGames(){
+  document.getElementById('watch-view').style.display = 'none';
+  document.getElementById('games-view').style.display = 'block';
+  renderGames(games);
+}
 
-  async function doSearch() {
-    const q = document.getElementById('search-input').value.trim();
-    if (!q) { loadTrending(); return; }
-    setStatus('Zoeken…');
-    document.getElementById('section-label').style.display = 'none';
-    try {
-      let url;
-      if (mediaType === 'anime') {
-        url = tmdbUrl('search/tv', { language: 'en-US', query: q, include_adult: 'false' });
-      } else {
-        url = tmdbUrl(`search/${mediaType}`, { language: 'en-US', query: q, include_adult: 'false' });
-      }
-      const res  = await fetch(url);
-      const data = await res.json();
-      let results = data.results || [];
-      if (mediaType === 'anime') results = results.filter(r => r.genre_ids?.includes(16));
-      if (results.length) {
-        setStatus(`${results.length} resultaten voor "${q}"`);
-        renderCards(results);
-      } else {
-        setStatus('Geen resultaten gevonden.');
-        renderCards([]);
-      }
-    } catch(err) { setStatus('Fout bij ophalen. Controleer je internetverbinding.'); }
-  }
+function goHome(){
+  closePlayer(); closeGamePlayer(); closeSearch();
+  if(mode==='games'){ showGames(); return; }
+  showWatch();
+}
 
-  async function loadTrending() {
-    setStatus('Laden…');
-    document.getElementById('section-label').style.display = 'none';
-    try {
-      let results = [], label = '';
-      if (mediaType === 'movie') {
-        const res = await fetch(tmdbUrl('trending/movie/week', { language: 'en-US' }));
-        const d   = await res.json();
-        results = d.results || [];
-        label   = 'Trending films deze week';
-      } else if (mediaType === 'tv') {
-        const res = await fetch(tmdbUrl('trending/tv/week', { language: 'en-US' }));
-        const d   = await res.json();
-        results = d.results || [];
-        label   = 'Trending series deze week';
-      } else {
-        const res = await fetch(tmdbUrl('discover/tv', {
-          language: 'en-US', with_genres: '16',
-          sort_by: 'popularity.desc', 'vote_count.gte': '100'
-        }));
-        const d = await res.json();
-        results = d.results || [];
-        label   = 'Populaire anime';
-      }
-      setStatus('');
-      const lbl = document.getElementById('section-label');
-      lbl.textContent = label;
-      lbl.style.display = 'block';
-      renderCards(results);
-    } catch(err) { setStatus('Fout bij laden.'); }
-  }
+async function loadHome(){
+  heroItem = null;
+  document.getElementById('hero-title').textContent = 'Laden…';
+  document.getElementById('hero-meta').innerHTML = '';
+  document.getElementById('hero-desc').textContent = '';
+  document.getElementById('hero-bg').style.backgroundImage = '';
 
-  function renderCards(items) {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = '';
-    items.slice(0, 20).forEach((item, i) => {
-      const title   = item.title || item.name || '';
-      const year    = (item.release_date || item.first_air_date || '').slice(0, 4);
-      const rating  = item.vote_average ? item.vote_average.toFixed(1) : '';
-      const poster  = item.poster_path ? IMG + item.poster_path : FALLBACK;
-      const isAnime = mediaType === 'anime';
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.animationDelay = (i * 25) + 'ms';
-      card.innerHTML = `
-        <div class="poster">
-          <img src="${poster}" alt="${title}" loading="lazy" onerror="this.src='${FALLBACK}'">
-          <div class="overlay">
-            <div class="play-circle"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-            <span class="watch-lbl">Nu kijken</span>
-          </div>
-        </div>
-        <div class="info">
-          <div class="title">${title}${isAnime ? '<span class="badge badge-anime">Anime</span>' : ''}</div>
-          <div class="meta">
-            <span class="year">${year}</span>
-            ${rating ? `<span class="rating"><svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${rating}</span>` : ''}
-          </div>
-        </div>`;
-      card.onclick = () => playMedia(item.id, title);
-      grid.appendChild(card);
-    });
-  }
+  const isAnime = mode==='anime';
+  const type = (mode==='tv'||isAnime) ? 'tv' : 'movie';
 
-  function playMedia(id, title) {
-    currentId = id;
-    ['grid','searchbar','tabs','hero','status','section-label'].forEach(elId => {
-      document.getElementById(elId).style.display = 'none';
-    });
-    document.getElementById('player-view').style.display = 'block';
-    document.getElementById('now-playing').textContent   = title;
-    if (mediaType === 'tv' || mediaType === 'anime') {
-      document.getElementById('ep-controls').style.display = 'flex';
-      document.getElementById('season-input').value = 1;
-      document.getElementById('ep-input').value     = 1;
-    } else {
-      document.getElementById('ep-controls').style.display = 'none';
-    }
-    loadPlayer();
-  }
+  // Fetch parallel
+  const [trendData, ratedData] = await Promise.all([
+    isAnime
+      ? api('discover/tv',{with_genres:'16',sort_by:'popularity.desc','vote_count.gte':'200'})
+      : api(`trending/${type}/week`),
+    isAnime
+      ? api('discover/tv',{with_genres:'16',sort_by:'vote_average.desc','vote_count.gte':'500'})
+      : api(`${type}/top_rated`)
+  ]);
 
-  function loadPlayer() {
-    const s = document.getElementById('season-input')?.value || 1;
-    const e = document.getElementById('ep-input')?.value   || 1;
-    document.getElementById('player-frame').src = buildUrl(currentId, mediaType, s, e);
-  }
+  const trending = trendData.results||[];
+  const rated    = ratedData.results||[];
 
-  function goBack() {
-    document.getElementById('player-frame').src  = '';
-    document.getElementById('player-view').style.display = 'none';
-    document.getElementById('grid').style.display        = 'grid';
-    document.getElementById('searchbar').style.display   = 'flex';
-    document.getElementById('tabs').style.display        = 'flex';
-    document.getElementById('hero').style.display        = 'block';
-    document.getElementById('status').style.display      = 'block';
-    currentId = null;
-  }
+  // Hero = first trending with backdrop
+  const heroCandidate = trending.find(i=>i.backdrop_path);
+  if(heroCandidate) setHero(heroCandidate, type);
 
-  loadTrending();
+  // Rows
+  renderTop10(trending.slice(0,10), type);
+  renderRow('trending-row', trending.slice(0,20), type);
+  renderRow('rated-row', rated.slice(0,20), type);
+}
+
+function setHero(item, type){
+  heroItem = item; heroType = type;
+  document.getElementById('hero-bg').style.backgroundImage = `url(${BIG}${item.backdrop_path})`;
+  document.getElementById('hero-title').textContent = item.title||item.name||'';
+  document.getElementById('hero-desc').textContent  = item.overview||'';
+
+  const rating = item.vote_average ? item.vote_average.toFixed(1) : '';
+  const year   = (item.release_date||item.first_air_date||'').slice(0,4);
+  const gnames = (item.genre_ids||[]).slice(0,3).map(id=>GENRES[id]).filter(Boolean);
+
+  document.getElementById('hero-meta').innerHTML =
+    `${rating?`<span class="h-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${rating}</span><span class="h-dot">·</span>`:''}
+    ${year?`<span>${year}</span><span class="h-dot">·</span>`:''}
+    ${gnames.map(g=>`<span class="h-genre">${g}</span>`).join('')}`;
+}
+
+function renderTop10(items, type){
+  document.getElementById('top10-row').innerHTML = items.slice(0,10).map((item,i)=>{
+    const poster = item.poster_path ? IMG+item.poster_path : FALL;
+    const t = item.title||item.name||'';
+    return `<div class="t10-wrap" onclick='playItem(${item.id},"${t.replace(/"/g,'&quot;')}","${type}")'>
+      <span class="t10-num">${i+1}</span>
+      <div class="t10-img"><img src="${poster}" loading="lazy" onerror="this.src='${FALL}'" alt="${t}"></div>
+    </div>`;
+  }).join('');
+}
+
+function renderRow(id, items, type){
+  document.getElementById(id).innerHTML = items.map(item=>{
+    const poster = item.poster_path ? IMG+item.poster_path : FALL;
+    const t = item.title||item.name||'';
+    const y = (item.release_date||item.first_air_date||'').slice(0,4);
+    return `<div class="mcard" onclick='playItem(${item.id},"${t.replace(/"/g,'&quot;')}","${type}")'>
+      <img src="${poster}" loading="lazy" onerror="this.src='${FALL}'" alt="${t}">
+      <div class="mc-info"><div class="mc-title">${t}</div><div class="mc-year">${y}</div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════
+   PLAY
+═══════════════════════════════════════ */
+function playHero(){ if(heroItem) playItem(heroItem.id, heroItem.title||heroItem.name, heroType); }
+function seeMore(){ /* could open detail modal – for now same as play */ playHero(); }
+
+function playItem(id, title, type){
+  closeSearch();
+  document.getElementById('pv-title').textContent = title;
+  const isTV = type==='tv';
+  const url = isTV
+    ? `https://www.2embed.cc/embedtv/${id}&s=1&e=1`
+    : `https://www.2embed.cc/embed/${id}`;
+  document.getElementById('pv-frame').src = url;
+  document.getElementById('ep-bar').style.display = isTV ? 'flex' : 'none';
+  if(isTV){ document.getElementById('ep-s').value=1; document.getElementById('ep-e').value=1; }
+  document.getElementById('player-view').classList.add('open');
+  // store for ep reload
+  document.getElementById('pv-frame').dataset.id   = id;
+  document.getElementById('pv-frame').dataset.type = type;
+}
+
+function loadEp(){
+  const id   = document.getElementById('pv-frame').dataset.id;
+  const type = document.getElementById('pv-frame').dataset.type;
+  const s    = document.getElementById('ep-s').value||1;
+  const e    = document.getElementById('ep-e').value||1;
+  document.getElementById('pv-frame').src = `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`;
+}
+
+function closePlayer(){
+  document.getElementById('pv-frame').src = '';
+  document.getElementById('player-view').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════
+   GAMES
+═══════════════════════════════════════ */
+const games = [
+  {title:"Eaglercraft",       emoji:"⛏️",tag:"Minecraft",featured:true, url:"https://eaglercrft.netlify.app/"},
+  {title:"Penalty Shooters 2",emoji:"⚽",tag:"Sport",    url:"https://play.gamepix.com/penalty-shooters-2/embed?sid=1"},
+  {title:"Basketball Stars",  emoji:"🏀",tag:"Sport",    url:"https://play.gamepix.com/basketball-stars/embed?sid=1"},
+  {title:"Stickman Hook",     emoji:"🕷️",tag:"Arcade",   url:"https://ubg742.github.io/stckmnhk/index.html"},
+  {title:"Level Devil",       emoji:"👹",tag:"Arcade",   url:"https://gr4ys0n.github.io/public/assets/games/level-devil/index.html"},
+  {title:"Drive Mad",         emoji:"🚙",tag:"Arcade",   url:"https://lnahtml.github.io/a77/drive-mad/"},
+  {title:"Pac-Man",           emoji:"👾",tag:"Arcade",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/pacman/"},
+  {title:"Asteroids",         emoji:"🚀",tag:"Arcade",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/asteroids/"},
+  {title:"Space Huggers",     emoji:"🛸",tag:"Arcade",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/spacehuggers/"},
+  {title:"Flappy Bird",       emoji:"🐦",tag:"Arcade",   url:"https://nebez.github.io/floppybird/"},
+  {title:"2048",              emoji:"🔢",tag:"Puzzel",   url:"https://gabrielecirulli.github.io/2048/"},
+  {title:"Tetris",            emoji:"🟦",tag:"Puzzel",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/tetris/"},
+  {title:"Hextris",           emoji:"🔷",tag:"Puzzel",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/hextris/"},
+  {title:"Breakout",          emoji:"🧱",tag:"Puzzel",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/breakout/"},
+  {title:"Snake",             emoji:"🐍",tag:"Klassiek", url:"https://binbashbanana.github.io/gfiles/gfiles/html5/snake/"},
+  {title:"Dino Game",         emoji:"🦕",tag:"Klassiek", url:"https://binbashbanana.github.io/gfiles/gfiles/html5/chromedino/"},
+  {title:"Chess",             emoji:"♟️",tag:"Klassiek", url:"https://binbashbanana.github.io/gfiles/gfiles/html5/chess/"},
+  {title:"Minesweeper",       emoji:"💣",tag:"Klassiek", url:"https://minesweeper.github.io/"},
+  {title:"Subway Surfers",    emoji:"🚇",tag:"Runner",   url:"https://subwaysurfers-ubg.github.io/"},
+  {title:"Run 3",             emoji:"🏃",tag:"Runner",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/run3/"},
+  {title:"Geometry Dash",     emoji:"🎮",tag:"Runner",   url:"https://binbashbanana.github.io/gfiles/gfiles/html5/geometrydash/"},
+  {title:"Cookie Clicker",    emoji:"🍪",tag:"Idle",     url:"https://binbashbanana.github.io/gfiles/gfiles/html5/cookieclicker/"},
+  {title:"A Dark Room",       emoji:"🕯️",tag:"Idle",     url:"https://binbashbanana.github.io/gfiles/gfiles/html5/adarkroom/"},
+  {title:"Sandboxels",        emoji:"🧪",tag:"Simulatie",url:"https://sandboxels.r74n.com/"},
+];
+
+function renderGames(list){
+  document.getElementById('game-grid').innerHTML = list.map(g=>`
+    <div class="gcard${g.featured?' featured':''}" onclick='playGame(${JSON.stringify(g.url)},${JSON.stringify(g.title)})'>
+      <div class="gemoji">${g.emoji}</div>
+      <h3>${g.title}</h3>
+      <span class="gtag">${g.tag}</span>
+    </div>`).join('');
+}
+
+function filterGames(){
+  const q = document.getElementById('game-search').value.toLowerCase();
+  renderGames(games.filter(g=>g.title.toLowerCase().includes(q)||g.tag.toLowerCase().includes(q)));
+}
+
+function playGame(url, title){
+  document.getElementById('gpv-title').textContent = title;
+  document.getElementById('gpv-ext').href = url;
+  document.getElementById('gframe').src = url;
+  document.getElementById('game-player-view').classList.add('open');
+  setTimeout(()=>document.getElementById('gframe').focus(),400);
+}
+
+function closeGamePlayer(){
+  document.getElementById('gframe').src = '';
+  document.getElementById('game-player-view').classList.remove('open');
+}
+
+function gFullscreen(){
+  const f = document.getElementById('gframe');
+  (f.requestFullscreen||f.webkitRequestFullscreen||f.mozRequestFullScreen).call(f);
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+loadHome();
 </script>
 </body>
 </html>
